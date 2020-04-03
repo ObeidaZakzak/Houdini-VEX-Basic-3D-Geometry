@@ -1,0 +1,79 @@
+// Controls
+float radius = max(1, ch('radius'));
+int thetaCount = max(3, chi('rotation_points'));
+
+float height = max(1, ch('heigth'));
+int hCount= chi('height_segments');
+
+vector origin = chv('origin');
+string dir = chs('direction');
+string gap = chs('gap');
+
+// Variables
+float theta;
+float step_theta = 2*PI / thetaCount;
+
+float u, v;
+float x, y, z;
+
+vector curPos;
+
+int points[];
+resize(points, thetaCount*(hCount+1));
+
+float step_h = height / (hCount+1);
+
+vector dirH;
+if (dir == "x") {
+    dirH = set(step_h, 0, 0);
+}
+if (dir == "y") {
+    dirH = set(0, step_h, 0);
+}
+if (dir == "z") {
+    dirH = set(0, 0, step_h);
+}
+
+// Building points
+for (int i = 0; i < thetaCount; i++) {
+
+    theta = i * step_theta;
+    u = radius * cos(theta);
+    v = radius * sin(theta);
+    
+    if (dir == "x") {
+        x = origin.x;
+        y = u + origin.y;
+        z = v + origin.z;
+    }
+    if (dir == "y") {
+        x = u + origin.x;
+        y = origin.y;
+        z = v + origin.z;
+    }
+    if (dir == "z") {
+        x = u + origin.x;
+        y = v + origin.y;
+        z = origin.z;
+    }
+
+    curPos = set(x, y, z);
+    for (int j = 0; j <= hCount+1; ++j){
+        vector curLinePos = curPos + j*step_h*dirH;
+        addpoint(0, curLinePos);
+    }
+}
+
+// Adding edges
+for (int i = 0; i < thetaCount*(hCount+1)+hCount+2; i += hCount+2) {
+    for (int j = 0; j < hCount+2; ++j) {
+        if ((i+j+1) != (i+hCount+2)) {
+            addprim(0, "polyline", i+j, i+j+1);
+        }
+        addprim(0, "polyline", i+j, i+hCount+2+j);
+    }
+}
+
+for (int j = 0; j < hCount+2; ++j){
+    addprim(0, "polyline", thetaCount*(hCount+1)+2+j, j);
+}

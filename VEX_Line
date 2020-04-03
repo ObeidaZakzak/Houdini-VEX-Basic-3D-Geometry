@@ -1,0 +1,33 @@
+// Controls
+float   length      = chf('length');
+int     inPtsCount  = chi('inner_points');
+vector  dir         = chv('direcion');
+vector  origin      = chv('origin');
+
+// Variables
+int points[];
+resize(points, inPtsCount+2);
+dir = normalize(dir);
+
+// External Points
+points[0] = addpoint(0, origin);
+vector lastPts = length * dir + origin;
+points[inPtsCount+1] = addpoint(0, lastPts);
+
+// Inner Points
+vector curPos;
+float x, y, z;
+float dl_i;
+float dl = length / (inPtsCount+1);
+
+for (int i = 1; i <= inPtsCount; i++){
+    dl_i = i * dl;
+    curPos = dl_i * dir + origin;
+    points[i] = addpoint(0, curPos);
+}
+
+// Adding Edges
+for (int i = 0; i < inPtsCount+1; ++i){
+    addprim(0, "polyline", points[i], points[i+1]);
+}
+

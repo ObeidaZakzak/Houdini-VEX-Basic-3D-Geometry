@@ -1,0 +1,71 @@
+// Controls
+float   radius      = ch('radius');
+int     nbPoints    = max(3, chi('points'));
+vector  origin      = chv('origin');
+string  dir         = chs('direction');
+string  gap         = chs('gap');
+
+// Variables
+float theta;
+float step_theta = 2*PI / nbPoints;
+
+float u, v;
+float x, y, z;
+
+vector curPos;
+
+int points[];
+resize(points, nbPoints);
+
+// Building circle
+for (int i = 0; i < nbPoints; i++) {
+
+    // Coordinates in circle's perspective
+    theta = i * step_theta;
+    u = radius * cos(theta);
+    v = radius * sin(theta);
+    
+    // Coordinates depending on direction
+    if (dir == "x") {
+        x = origin.x;
+        y = u + origin.y;
+        z = v + origin.z;
+    }
+    if (dir == "y") {
+        x = u + origin.x;
+        y = origin.y;
+        z = v + origin.z;
+    }
+    if (dir == "z") {
+        x = u + origin.x;
+        y = v + origin.y;
+        z = origin.z;
+    }
+
+    // Adding current position
+    curPos = set(x, y, z);
+    points[i] = addpoint(0, curPos);
+
+    // Adding Edges
+    if (i>0) {
+        addprim(0, "polyline", points[i-1], points[i]);
+    }
+}
+// Edge between last point and first point
+addprim(0, "polyline", points[nbPoints-1], points[0]);
+
+// Gap with one polygone
+if (gap == "1") {
+    addprim(0, "poly", points);
+}
+// Gap with a center point
+if (gap == "2") {
+    int center = addpoint(0, origin);
+    for (int i = 0; i < nbPoints; i++) {
+        addprim(0, "polyline", center, points[i]);
+    }
+    for (int i = 1; i < nbPoints; i++) {
+        addprim(0, "poly", center, points[i-1], points[i]);
+    }
+    addprim(0, "poly", center, points[nbPoints-1], points[0]);
+}

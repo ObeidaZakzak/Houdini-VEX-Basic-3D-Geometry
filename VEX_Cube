@@ -1,0 +1,43 @@
+// Controls
+vector scale = chv('scale');
+
+// Adding points
+int points[];
+resize(points,8);
+
+points[0] = addpoint(0, set(0, 0, 0));
+
+points[1] = addpoint(0, set(scale[0],   0,          0));
+points[2] = addpoint(0, set(0,          scale[1],   0));
+points[3] = addpoint(0, set(0,          0,          scale[2]));
+
+points[4] = addpoint(0, set(scale[0],   scale[1],   0));
+points[5] = addpoint(0, set(scale[0],   0,          scale[2]));
+points[6] = addpoint(0, set(0,          scale[1],   scale[2]));
+
+points[7] = addpoint(0, set(scale[0],   scale[1],   scale[2]));
+
+// Adding segments
+for (int i = 1; i <= 3; ++i){
+    addprim(0, "polyline", points[0], points[i]);
+    addprim(0, "polyline", points[7], points[i+3]);
+}
+
+addprim(0, "polyline", points[1], points[4]);
+addprim(0, "polyline", points[1], points[5]);
+
+addprim(0, "polyline", points[2], points[4]);
+addprim(0, "polyline", points[2], points[6]);
+
+addprim(0, "polyline", points[3], points[5]);
+addprim(0, "polyline", points[3], points[6]);
+
+// Adding polygones
+addprim(0, "poly", points[0], points[1], points[4], points[2]);
+addprim(0, "poly", points[0], points[1], points[5], points[3]);
+addprim(0, "poly", points[0], points[2], points[6], points[3]);
+
+addprim(0, "poly", points[7], points[4], points[1], points[5]);
+addprim(0, "poly", points[7], points[4], points[2], points[6]);
+addprim(0, "poly", points[7], points[5], points[3], points[6]);
+

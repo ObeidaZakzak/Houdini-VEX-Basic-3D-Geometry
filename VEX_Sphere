@@ -1,0 +1,75 @@
+// controls
+int sample = max(1, chi('sample'));
+float radius = ch('radius');
+vector origin = chv('origin_position');
+
+// single points up and down
+vector upperPoint = set(origin.x, radius, origin.z);
+vector lowerPoint = set(origin.x, -radius, origin.z);
+addpoint(0, upperPoint);
+addpoint(0, lowerPoint);
+
+// steps for angle and height on circles
+float step_angle = 2 * PI / sample;
+float step_y = radius / sample;
+
+// parameters for a circle
+float r, theta;
+
+// coordinates
+float x, z;
+float y = origin.y;
+
+vector pos, pos_sym;
+int curID, curID_sym;
+
+//int circles[][];
+    int circle_i[];
+    resize(circle_i, sample*sample);
+
+    int circle_i_sym[];
+    resize(circle_i_sym, sample*sample);
+
+// iterating elementary circles to build sphere
+for(int i = 0; i < sample+1; i++)
+{
+    r = sqrt(radius*radius - y*y);
+    theta = 0;
+
+    for(int j = 0; j < sample+1; j++)
+    {
+        x = origin.x + cos(theta)*r;
+        z = origin.z + sin(theta)*r;
+        
+        pos = set(x, y, z);
+        pos_sym = set(x, -y, z);
+        
+        curID = addpoint(0, pos);
+        curID_sym = addpoint(0, pos_sym);  
+
+        //circles[i][j] = curID;
+        circle_i[i+j] = curID;
+        circle_i_sym[i+j] = curID_sym;
+
+        if(j>0)
+        {
+            //addprim(0, "polyline", circles[i][j-1], circles[i][j]);
+            addprim(0, "polyline", circle_i[i+j-1], circle_i[i+j]);
+            addprim(0, "polyline", circle_i_sym[i+j-1], circle_i_sym[i+j]);
+        }
+
+        theta = j*step_angle;
+    }
+    addprim(0, "polyline", circle_i[i+sample], circle_i[i]);
+    addprim(0, "polyline", circle_i_sym[i+sample], circle_i_sym[i]);
+
+    y = i*step_y;
+}
+
+for (int i = 0; i < sample; ++i){
+    for (int j = 0; j < sample; ++j){
+        addprim(0, "polyline", circle_i[i+j], circle_i[i+1+j]);
+        addprim(0, "polyline", circle_i_sym[i+j], circle_i_sym[i+1+j]);
+    }
+    
+}
